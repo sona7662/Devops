@@ -1,0 +1,9 @@
+# Deployment Spec
+namespace: default
+replicas: 10
+containerPort: 80
+imagepullsecrets: dockerhub
+
+# Service Spec
+nodeport: 30002
+nodeprotocol: TCP

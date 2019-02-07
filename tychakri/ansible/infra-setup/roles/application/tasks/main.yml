@@ -1,0 +1,44 @@
+---
+# Python Application Installation
+# file: roles/application/tasks/main.yml
+   - name: Install required packages
+     apt:
+      name: "{{pkg}}"
+      state: present
+      update_cache: yes
+     vars:
+      pkg:
+       - python-pip
+       - git
+
+   - name: Clone Project
+     git:
+      repo: "{{app_repo}}"
+      dest: "{{app_location}}"
+      remote: origin
+      version: master
+      force: yes
+
+   - name: Create a non-privileged user
+     user:
+      name: myapp
+      state: present
+      shell: /bin/bash
+      system: yes
+      createhome: yes
+      home: /home/myapp
+
+   - name: change permissions to "{{app_location}}"
+     file:
+      path: "{{app_location}}"
+      state: directory
+      owner: myapp
+      group: myapp
+      mode: 0755
+      recurse: yes
+
+   - name: Install Python app requirements
+     pip:
+        requirements: "{{app_location}}/requirements.txt"
+        state: present
+

@@ -1,0 +1,9 @@
+FROM centos:latest
+
+RUN yum install epel-release -y && \
+    yum install mariadb-server -y
+
+RUN /bin/mysql_install_db && /bin/chown -R mysql:mysql /var/lib/mysql
+
+CMD mysqld_safe 
+

@@ -1,0 +1,5 @@
+dependencies:
+  - role: flask_web
+    vars:
+      upstream_host: 127.0.0.1
+      upstream_port: 5000

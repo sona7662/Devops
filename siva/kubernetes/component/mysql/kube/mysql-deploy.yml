@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ app }}-pod
+  labels:
+    app: {{ app }}
+spec:
+  containers:
+  - name: {{ app }}-c
+    image: sivkris2/{{ app }}
+    ports:
+    - containerPort: {{ containerPort }}
+    volumeMounts:
+    - mountPath: /var/lib/mysql
+      name: {{ app }}-volume
+  imagePullSecrets:
+  - name: {{ imagepullsecrets }}
+  volumes:
+  - name: {{ app }}-volume
+    hostPath:
+      path: /opt/docker/volumes/{{ app }}-volume
+      type: DirectoryOrCreate

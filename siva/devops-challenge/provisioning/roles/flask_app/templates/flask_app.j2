@@ -1,0 +1,15 @@
+# Ubuntu upstart file
+
+pre-start script
+    mkdir -p /var/log/{{ app_name }}/
+end script
+
+respawn
+#respawn limit 15 5
+
+start on runlevel [2345]
+stop on runlevel [06]
+
+script
+su - {{ app_user }} -c "exec {{ app_dir }}/app.py 2>&1" >>  /var/log/{{ app_name }}/{{ app_name }}.log
+end script

@@ -1,0 +1,7 @@
+---
+# handlers file for flask_app
+
+- name: start flask_app
+  service:
+    name: flask_app
+    state: started

@@ -1,0 +1,5 @@
+- name: Python App Deployment
+  hosts: flask_app
+  become: true
+  roles:
+  - flask_app

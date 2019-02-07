@@ -1,0 +1,9 @@
+---
+### Supervisor Installation and Configuration
+# file: roles/supervisor/handlers/main.yml
+
+- name: restart_supervisor
+  service:
+    name: supervisor
+    state: restarted
+

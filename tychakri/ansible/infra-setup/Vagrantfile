@@ -1,0 +1,27 @@
+# Creator: Chakravarty
+# Vagrant Box Configuration
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.define "appnode1" do |machine|
+  end
+  
+## Vagrant Network configuration 
+  config.vm.network "private_network", ip: "10.10.10.20"
+  #config.vm.network "forwarded_port", guest: 5000, host: 80
+  # config.vm.network "public_network"
+  # config.vm.synced_folder "../data", "/vagrant_data"
+  
+# Vagrant Provider Configuration 
+  config.vm.provider "virtualbox" do |vb|
+     vb.gui = false # Enable VirtualBox GUI when booting the machine
+     vb.memory = "1024"
+     vb.customize ["modifyvm", :id, "--cpuexecutioncap", "100"]
+  end
+# Vagrant Provision Configuration Provider: Ansible
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook       = "myapp-playbook.yml"
+    ansible.verbose        = true
+    ansible.limit          = "vagrant" # or only "nodes" group, etc.
+    ansible.inventory_path = "app-hosts"
+  end
+end

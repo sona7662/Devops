@@ -1,0 +1,24 @@
+---
+### Supervisor Install and configuration 
+# file: roles/supervisor/tasks/main.yml
+ 
+- name: Install supervisor
+  apt:
+    pkg: supervisor
+    state: present
+    update_cache: true
+  register: supervisor_installed
+  notify:
+    - restart_supervisor
+
+- name: Copy supervisor configuration
+  when: supervisor_installed is success
+  template:
+    src: myapp.conf
+    dest: /etc/supervisor/conf.d/myapp.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart_supervisor
+

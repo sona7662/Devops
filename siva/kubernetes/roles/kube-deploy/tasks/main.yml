@@ -1,0 +1,3 @@
+---
+# tasks file for kube-deploy
+- include_tasks: k8s-deploy.yml

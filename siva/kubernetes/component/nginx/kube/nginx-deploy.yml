@@ -1,0 +1,31 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+    name: {{ app }}-deploy
+spec:
+    replicas: {{ replicas }}
+    selector:
+        matchLabels:
+            app: {{ app }}
+    minReadySeconds: 10
+    strategy:
+        type: RollingUpdate
+        rollingUpdate:
+            maxUnavailable: 1
+            maxSurge: 1
+    template:
+        metadata:
+            labels:
+                app: {{ app }}
+        spec:
+            containers:
+            - name: {{ app }}-c
+              image: sivkris2/{{ app }}:{{ version }}
+              ports:
+              - containerPort: {{ containerPort }}
+              readinessProbe:
+                  httpGet:
+                      path: /
+                      port: {{ containerPort }}
+            imagePullSecrets:
+            - name: {{ imagepullsecrets }}

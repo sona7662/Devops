@@ -1,0 +1,63 @@
+---
+
+- name: Install System Dependencies
+  apt:
+    name: "{{ app_dependency }}"
+    state: present
+    update_cache: yes
+
+- name: Create Application User
+  user:
+    name: "{{ app_user }}"
+    comment: Application User
+    shell: /bin/bash
+    
+#- name: Clone the Application Repo
+#  git:
+#    repo: 'https://foosball.example.org/path/to/repo.git'
+#    dest: /webapps/devops
+#    version: master
+#    force: yes
+
+- name: Copy Application Files
+  copy:
+    src: files/
+    dest: "{{ app_dir }}"
+  register: pythonapp
+  notify:
+    - start flask_app
+
+- name: Set permissions for the Folder
+  file:
+    path: "{{ app_dir }}"
+    recurse: yes
+    owner: "{{ app_user }}"
+    group: root
+    mode: '755'
+
+- name: Install Application Dependencies
+  pip:
+    requirements: "{{ app_dir }}/requirements.txt"
+
+- name: Copy Init Script file
+  template:
+    src: flask_app.j2
+    dest: "/etc/init/{{ app_name }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Restart the Service on any deployment
+  service:
+    name: "{{ app_name }}"
+    state: restarted
+    enabled: yes
+  when: pythonapp.changed
+
+- name: Setup logrotate for flask_app
+  template:
+    src: flask_logrotate.j2
+    dest: "/etc/logrotate.d/{{ app_name }}"
+    owner: root
+    group: root
+    mode: 0644

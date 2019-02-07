@@ -1,0 +1,30 @@
+---
+- name: Decrypt Kube configuration
+  copy:
+    src: ./kubeconfig/config
+    dest: ./kubeconfig/.config
+    decrypt: yes
+
+- name: Include Variables for Kubernetes deployment
+  include_vars: ./component/{{ app }}/kube/{{ app }}-vars.yml
+
+#- name: test templating
+#  template:
+#    src: ./component/{{ app }}/kube/{{ app }}-deploy.yml
+#    dest: ./roles/kube-deploy/files/{{ app }}-deploy.ym
+
+- name: Create a deployment for {{ app }}
+  k8s:
+    state: present
+    namespace: "{{ namespace }}"
+    kubeconfig: ./kubeconfig/.config
+    definition: "{{ lookup('template', './component/{{ app }}/kube/{{ app }}-deploy.yml') }}"
+
+
+- name: Create service to access {{ app }}
+  k8s:
+    state: present
+    namespace: "{{ namespace }}"
+    kubeconfig: ./kubeconfig/.config
+    definition: "{{ lookup('template', './component/{{ app }}/kube/{{ app }}-svc.yml') }}"
+    

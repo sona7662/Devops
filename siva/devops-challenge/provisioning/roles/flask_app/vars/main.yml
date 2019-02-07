@@ -1,0 +1,10 @@
+---
+# vars file for flask_app
+
+# Flask User Spec
+app_user: flask_app
+app_dir: /webapps/devops
+app_name: flask_app
+app_dependency:
+  - git
+  - python-pip

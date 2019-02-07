@@ -1,0 +1,7 @@
+- name: Kubernetes Deployment
+  hosts: localhost
+  become: true
+  vars_files:
+    - creds/creds.yml
+  roles:
+  - "{{ role }}"

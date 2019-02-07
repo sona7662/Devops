@@ -1,0 +1,28 @@
+---
+
+- name: Add Nginx PPA
+  apt_repository:
+    repo: ppa:nginx/stable
+    state: present
+  register: ppastable
+
+- name: Install Nginx Package
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+  when: ppastable is success
+  notify:
+  - start nginx
+
+- name: Configure Nginx for Flask
+  template:
+    src: flask_nginx.conf
+    dest: /etc/nginx/sites-enabled/default
+    owner: www-data
+    group: root
+    mode: 0644
+  notify:
+  - reload nginx
+
+

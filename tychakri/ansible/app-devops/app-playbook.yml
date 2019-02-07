@@ -1,0 +1,128 @@
+---
+- hosts: app-hosts
+  become: true
+  become_method: sudo
+
+  vars: 
+   app_location: /webapps/devops
+   app_repo: https://bitbucket.org/azneita/devops-challenge.git
+   nginx_proxy: localhost:5000
+   app_name: myapp
+
+  tasks:
+# task for updating timezone settings
+   - name: Set timezone
+     copy:
+      content: '{{ timezone | default("UTC") }}'
+      dest: /etc/timezone
+      owner: root
+      group: root
+      mode: 0644
+
+   - name: Remove existing localtime configuration file
+     file: path=/etc/localtime state=absent
+
+   - name: Set localtime to UTC
+     file: src=/usr/share/zoneinfo/{{ timezone | default("UTC") }} dest=/etc/localtime state=link owner=root group=root mode=0644
+
+   - name: Reconfigure tzdata
+     command: dpkg-reconfigure -f noninteractive tzdata
+
+## Nginx Installation 
+   - name: Add Nginx Repository
+     apt_repository:
+        repo: 'ppa:nginx/stable'
+        state: present
+     register: nginx_repo_install
+
+   - name: Install Nginx
+     apt:
+      pkg: nginx
+      state: installed
+      update_cache: true
+     when: nginx_repo_install is success
+     register: nginx_installed
+     notify:
+      - Restart_Nginx
+
+   - name: Add proxy site Configuration
+     when: nginx_installed is success
+     template:
+       src: ./nginx_config
+       dest: /etc/nginx/sites-enabled/default
+       owner: root
+       group: root
+     register: add_proxysite
+
+   - name: reload nginx
+     service:
+        name: nginx
+        state: reloaded
+     when: add_proxysite is success
+   
+# Python Application Installation 
+   - name: Install required packages
+     apt: 
+      name: "{{pkg}}"
+      state: present
+      update_cache: yes
+     vars: 
+      pkg:
+       - python-pip
+       - git
+       - supervisor
+       
+   - name: Clone Project 
+     git:
+      repo: "{{app_repo}}"
+      dest: "{{app_location}}"
+      remote: origin
+      version: master
+      force: yes
+
+   - name: Create a non-privileged user
+     user:
+      name: myapp
+      state: present
+      shell: /bin/bash       
+      system: yes
+      createhome: yes        
+      home: /home/myapp
+
+   - name: change permissions to "{{app_location}}"
+     file:
+      path: "{{app_location}}"
+      state: directory
+      owner: myapp
+      group: myapp
+      mode: 0755
+      recurse: yes
+
+   - name: Install Python app requirements
+     pip:
+        requirements: "{{app_location}}/requirements.txt"
+        state: present
+     register: Install_Application
+
+   - name: Copy supervisor configuration
+     when: Install_Application is success
+     template:
+       src: ./myapp.conf
+       dest: /etc/supervisor/conf.d/myapp.conf
+       owner: root
+       group: root
+       mode: 0644
+     register: Supervisor_config
+
+   - name: Start app.py
+     service:
+        name: supervisor
+        state: restarted
+    
+## Nginx restart handler
+  handlers:
+    - name: Restart_Nginx
+      service: 
+        name: nginx 
+        state: restarted
+

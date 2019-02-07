@@ -1,0 +1,20 @@
+#controller ansible_connection=local
+
+[vagrant]
+appnode1  ansible_ssh_host=10.10.10.20 ansible_ssh_private_key_file=/vagrant/.vagrant/machines/appnode1/virtualbox/private_key
+
+[centos6]
+192.168.56.101
+
+[centos7]
+192.168.56.102
+192.168.56.103
+
+[ubuntu]
+192.168.56.104
+192.168.56.105
+
+[vbox:children]
+centos6
+centos7
+ubuntu

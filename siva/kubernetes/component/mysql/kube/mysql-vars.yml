@@ -1,0 +1,8 @@
+# Deployment Spec
+namespace: default
+containerPort: 3306
+imagepullsecrets: dockerhub
+
+# Service Spec
+nodeport: 33006
+nodeprotocol: TCP

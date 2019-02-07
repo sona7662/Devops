@@ -1,0 +1,48 @@
+---
+### Os_hardening and Configuration
+# file: roles/os_hardening/tasks/main.yml
+- name: Task on local host
+  apt: 
+    name: ansible
+    state: present
+  delegate_to: 127.0.0.1
+  run_once: true
+
+- name: yum update all
+  yum: 
+    name: '*'
+    state: latest
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: Install basic packages on Centos
+  yum:
+    name:
+      - vim
+      - wget
+      - curl
+      - bind-utils
+    state: latest
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: Install aptitude
+  apt:
+    name: aptitude 
+    state: present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+    
+- name: Update all packages
+  apt:
+    name: '*'
+    state: latest
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Install basic packages on Ubuntu
+  apt: 
+    name:
+      - vim
+      - wget
+      - curl
+      - dnsutils
+    state: latest
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+

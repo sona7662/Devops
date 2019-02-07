@@ -1,0 +1,3 @@
+---
+# tasks file for flask_app
+- include_tasks: app_setup.yml

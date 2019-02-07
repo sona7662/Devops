@@ -1,0 +1,13 @@
+---
+
+- name: Log into DockerHub
+  docker_login:
+    username: "{{ docker_username }}"
+    password: "{{ docker_passwd }}"
+
+- name: Build image from DockerFile
+  docker_image:
+     path: component/{{ app }}/docker
+     name: sivkris2/{{ app }}
+     tag: "{{ version }}"
+     push: yes
